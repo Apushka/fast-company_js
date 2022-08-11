@@ -22,11 +22,11 @@ const User = ({ userId }) => {
         <>
             <h1>{user.name}</h1>
             <h3>Профессия: {user.profession.name}</h3>
-            {user.qualities.map((quality) => (
+            {user.qualities.map(({ _id, color, name }) => (
                 <Quality
-                    key={quality._id}
-                    color={quality.color}
-                    name={quality.name}
+                    key={_id}
+                    color={color}
+                    name={name}
                 />
             ))}
             <p>CompletedMeetings: {user.completedMeetings}</p>
