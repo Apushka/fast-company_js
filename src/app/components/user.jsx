@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import api from "../api";
-import Quality from "./quality";
 import { useHistory } from "react-router-dom";
+import QualitiesList from "./qualitiesList";
 
 const User = ({ userId }) => {
     const [user, setUser] = useState();
@@ -22,13 +22,7 @@ const User = ({ userId }) => {
         <>
             <h1>{user.name}</h1>
             <h3>Профессия: {user.profession.name}</h3>
-            {user.qualities.map(({ _id, color, name }) => (
-                <Quality
-                    key={_id}
-                    color={color}
-                    name={name}
-                />
-            ))}
+            <QualitiesList qualities={user.qualities} />
             <p>CompletedMeetings: {user.completedMeetings}</p>
             <h2>Rate: {user.rate}</h2>
             <button onClick={handleReturn}>Все пользователи</button>
