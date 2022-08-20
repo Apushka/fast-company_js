@@ -5,7 +5,7 @@ const NavBar = () => {
     return (
         <ul className="nav">
             <li className="nav-item">
-                <NavLink className="nav-link" activeClassName="bg-secondary text-white" to="/main">
+                <NavLink className="nav-link" activeClassName="bg-secondary text-white" exact to="/">
                     Main
                 </NavLink>
             </li>
