@@ -30,7 +30,7 @@ const UsersList = () => {
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [selectedProf]);
+    }, [selectedProf, search]);
 
     const handleDelete = (userId) => {
         setUsers(users.filter((user) => user._id !== userId));
@@ -48,7 +48,7 @@ const UsersList = () => {
 
     const handleProfessionSelect = (item) => {
         setSelectedProf(item);
-        setSearch("");
+        if (search) setSearch("");
     };
 
     const handlePageChange = (pageIndex) => {
@@ -59,15 +59,15 @@ const UsersList = () => {
     };
 
     if (users) {
-        const foundUsers = users.filter(user => user.name.toLowerCase().includes(search));
-
-        const filteredUsers = selectedProf
-            ? foundUsers.filter(
-                (user) =>
-                    JSON.stringify(user.profession) ===
-                    JSON.stringify(selectedProf)
-            )
-            : foundUsers;
+        const filteredUsers = search
+            ? users.filter(user => user.name.toLowerCase().includes(search))
+            : selectedProf
+                ? users.filter(
+                    (user) =>
+                        JSON.stringify(user.profession) ===
+                        JSON.stringify(selectedProf)
+                )
+                : users;
 
         const count = filteredUsers.length;
         const sortedUsers = _.orderBy(
@@ -83,7 +83,7 @@ const UsersList = () => {
         };
 
         const handleSearch = ({ target }) => {
-            clearFilter();
+            if (selectedProf) clearFilter();
             setSearch(target.value.trim().toLowerCase());
         };
 
