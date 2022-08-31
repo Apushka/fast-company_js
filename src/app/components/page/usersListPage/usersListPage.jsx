@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 // import PropTypes from "prop-types";
-import { paginate } from "../utils/paginate";
-import Pagination from "./pagination";
-import api from "../api";
-import GroupList from "./groupList";
-import SearchStatus from "./searchStatus";
-import UserTable from "./usersTable";
 import _ from "lodash";
-import Search from "./search";
+import { paginate } from "../../../utils/paginate";
+import Pagination from "../../../components/common/pagination";
+import api from "../../../api/index";
+import GroupList from "../../common/groupList";
+import SearchStatus from "../../ui/searchStatus";
+import UserTable from "../../ui/usersTable";
+import SearchField from "../../common/form/searchField";
+import Loader from "../../common/loader";
 
-const UsersList = () => {
+const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [users, setUsers] = useState();
     const [professions, setProfessions] = useState();
@@ -107,7 +108,7 @@ const UsersList = () => {
                 )}
                 <div className="d-flex flex-column">
                     <SearchStatus length={count} />
-                    <Search value={search} onChange={handleSearch} />
+                    <SearchField value={search} onChange={handleSearch} />
 
                     {count > 0 && (
                         <UserTable
@@ -130,10 +131,10 @@ const UsersList = () => {
             </div >
         );
     }
-    return "Loading...";
+    return <Loader />;
 };
-// UsersList.propTypes = {
+// UsersListPage.propTypes = {
 //     users: PropTypes.array
 // };
 
-export default UsersList;
+export default UsersListPage;

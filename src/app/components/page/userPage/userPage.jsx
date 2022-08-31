@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import api from "../api";
+import api from "../../../api";
 import { useHistory } from "react-router-dom";
-import QualitiesList from "./qualitiesList";
+import Qualities from "../../ui/qualities";
+import Loader from "../../common/loader";
 
 const UserPage = ({ userId }) => {
     const [user, setUser] = useState();
@@ -12,20 +13,20 @@ const UserPage = ({ userId }) => {
         api.users.getById(userId).then((user) => setUser(user));
     }, []);
 
-    const handleReturn = () => {
-        history.push("/users");
+    const handleChange = () => {
+        history.push(`/users/${userId}/edit`);
     };
 
-    if (!user) return <h2>Loading...</h2>;
+    if (!user) return <Loader />;
 
     return (
         <>
             <h1>{user.name}</h1>
             <h3>Профессия: {user.profession.name}</h3>
-            <QualitiesList qualities={user.qualities} />
+            <Qualities qualities={user.qualities} />
             <p>CompletedMeetings: {user.completedMeetings}</p>
             <h2>Rate: {user.rate}</h2>
-            <button onClick={handleReturn}>Все пользователи</button>
+            <button onClick={handleChange}>Изменить</button>
         </>
     );
 };

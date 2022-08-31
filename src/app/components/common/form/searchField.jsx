@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import TextField from "./textField";
 
-const Search = ({ value, onChange }) => {
+const SearchField = ({ value, onChange }) => {
     return <form>
         <TextField
             type="search"
@@ -13,9 +13,9 @@ const Search = ({ value, onChange }) => {
     </form>;
 };
 
-Search.propTypes = {
+SearchField.propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired
 };
 
-export default Search;
+export default SearchField;
