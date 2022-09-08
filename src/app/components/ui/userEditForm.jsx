@@ -32,7 +32,7 @@ const UserEditForm = () => {
             ...prevState,
             ...rest,
             profession: profession._id,
-            qualities: qualities.map(quality => ({ label: quality.name, value: quality._id, color: quality.color }))
+            qualities: transformData(qualities)
         })));
         api.professions.fetchAll().then((data) => {
             const professionsList = transformData(data);
@@ -45,8 +45,9 @@ const UserEditForm = () => {
     }, []);
 
     const transformData = (data) => {
-        return Object.keys(data).map((key) => {
-            const { name: label, _id: value, ...rest } = data[key];
+        const arr = Array.isArray(data) ? data : Object.values(data);
+        return arr.map((item) => {
+            const { name: label, _id: value, ...rest } = item;
             return { label, value, ...rest };
         });
     };
