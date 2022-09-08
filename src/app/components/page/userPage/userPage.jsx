@@ -13,7 +13,7 @@ const UserPage = ({ userId }) => {
         api.users.getById(userId).then((user) => setUser(user));
     }, []);
 
-    const handleChange = () => {
+    const handleClick = () => {
         history.push(`/users/${userId}/edit`);
     };
 
@@ -26,7 +26,7 @@ const UserPage = ({ userId }) => {
             <Qualities qualities={user.qualities} />
             <p>CompletedMeetings: {user.completedMeetings}</p>
             <h2>Rate: {user.rate}</h2>
-            <button onClick={handleChange}>Изменить</button>
+            <button onClick={handleClick}>Изменить</button>
         </>
     );
 };

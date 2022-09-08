@@ -10,50 +10,61 @@ import { useHistory, useParams } from "react-router-dom";
 import Loader from "../common/loader";
 
 const UserEditForm = () => {
-    const [data, setData] = useState();
+    const [data, setData] = useState({
+        name: "",
+        email: "",
+        profession: "",
+        sex: "male",
+        qualities: []
+    });
+    const [isLoading, setIsLoading] = useState(false);
 
     const { userId } = useParams();
-    const [professions, setProfessions] = useState();
+    const [professions, setProfessions] = useState([]);
     const [qualities, setQualities] = useState([]);
     const [errors, setErrors] = useState({});
     const isValid = Object.keys(errors).length === 0;
     const history = useHistory();
 
     useEffect(() => {
-        api.users.getById(userId).then((user) => setData(() => ({
-            name: user.name,
-            email: user.email,
-            profession: user.profession._id,
-            sex: user.sex,
-            qualities: user.qualities.map(quality => ({ label: quality.name, value: quality._id, color: quality.color }))
+        setIsLoading(true);
+        api.users.getById(userId).then(({ profession, qualities, ...rest }) => setData((prevState) => ({
+            ...prevState,
+            ...rest,
+            profession: profession._id,
+            qualities: qualities.map(quality => ({ label: quality.name, value: quality._id, color: quality.color }))
         })));
         api.professions.fetchAll().then((data) => {
-            const professionsList = Object.keys(data).map((professionName) => ({
-                label: data[professionName].name,
-                value: data[professionName]._id
-            }));
+            const professionsList = transformData(data);
             setProfessions(professionsList);
         });
         api.qualities.fetchAll().then((data) => {
-            const qualitiesList = Object.keys(data).map((optionName) => ({
-                label: data[optionName].name,
-                value: data[optionName]._id,
-                color: data[optionName].color
-            }));
+            const qualitiesList = transformData(data);
             setQualities(qualitiesList);
         });
     }, []);
+
+    const transformData = (data) => {
+        return Object.keys(data).map((key) => {
+            const { name: label, _id: value, ...rest } = data[key];
+            return { label, value, ...rest };
+        });
+    };
+
+    useEffect(() => {
+        if (data._id) setIsLoading(false);
+    }, [data]);
 
     useEffect(() => {
         validate();
     }, [data]);
 
     const validateSchema = yup.object().shape({
-        name: yup.string().required("Имя почта обязательно для заполнения"),
-        email: yup.string().required("Электронная почта обязательна для заполнения").email("Email введён некорректно"),
-        profession: yup.string().required("Обязательно выберите вашу профессию"),
+        qualities: yup.array(),
         sex: yup.string(),
-        qualities: yup.array()
+        profession: yup.string().required("Обязательно выберите вашу профессию"),
+        email: yup.string().required("Электронная почта обязательна для заполнения").email("Email введён некорректно"),
+        name: yup.string().required("Имя почта обязательно для заполнения")
     });
 
     const validate = () => {
@@ -102,13 +113,12 @@ const UserEditForm = () => {
         };
         api.users.update(userId, updatedData)
             .then(() => {
-                alert("Изменения успешно сохранены");
                 history.push("/users");
             })
             .catch(() => alert("Что-то пошло не так"));
     };
 
-    if (!data || !professions || qualities.length === 0) return <Loader />;
+    if (isLoading) return <Loader />;
 
     return <form onSubmit={handleSubmit}>
         <TextField
