@@ -14,7 +14,7 @@ const UserPage = ({ userId }) => {
         api.users.getById(userId).then((user) => setUser(user));
     }, []);
 
-    if (!user) return <Loader />;
+    if (!user) return <Loader fullScreen />;
 
     return (
         <div className="container">

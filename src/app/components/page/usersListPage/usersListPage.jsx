@@ -131,7 +131,7 @@ const UsersListPage = () => {
             </div >
         );
     }
-    return <Loader />;
+    return <Loader fullScreen />;
 };
 // UsersListPage.propTypes = {
 //     users: PropTypes.array
