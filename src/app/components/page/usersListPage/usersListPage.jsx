@@ -9,21 +9,16 @@ import SearchStatus from "../../ui/searchStatus";
 import UserTable from "../../ui/usersTable";
 import SearchField from "../../common/form/searchField";
 import Loader from "../../common/loader";
+import { useUser } from "../../../hooks/useUser";
 
 const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [users, setUsers] = useState();
+    const { users } = useUser();
     const [professions, setProfessions] = useState();
     const [selectedProf, setSelectedProf] = useState();
     const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
     const [search, setSearch] = useState("");
     const pageSize = 8;
-
-    useEffect(() => {
-        api.users.fetchAll().then((data) => {
-            setUsers(data);
-        });
-    }, []);
 
     useEffect(() => {
         api.professions.fetchAll().then((data) => setProfessions(data));
@@ -34,7 +29,8 @@ const UsersListPage = () => {
     }, [selectedProf, search]);
 
     const handleDelete = (userId) => {
-        setUsers(users.filter((user) => user._id !== userId));
+        // setUsers(users.filter((user) => user._id !== userId));
+        console.log(userId);
     };
 
     const handleToggleBookMark = (id) => {
@@ -44,7 +40,7 @@ const UsersListPage = () => {
             }
             return user;
         });
-        setUsers(newArray);
+        console.log(newArray);
     };
 
     const handleProfessionSelect = (item) => {
@@ -83,9 +79,9 @@ const UsersListPage = () => {
             setSelectedProf();
         };
 
-        const handleSearch = ({ target }) => {
+        const handleSearch = ({ value }) => {
             if (selectedProf) clearFilter();
-            setSearch(target.value.trim().toLowerCase());
+            setSearch(value.trim().toLowerCase());
         };
 
         return (
