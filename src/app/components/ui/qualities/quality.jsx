@@ -3,13 +3,10 @@ import PropTypes from "prop-types";
 import { useQuality } from "../../../hooks/useQuality";
 
 const Quality = ({ id }) => {
-    const { isLoading, getQuality } = useQuality();
+    const { getQuality } = useQuality();
     const { color, name } = getQuality(id);
 
-    if (!isLoading) {
-        return <span className={"badge m-1 bg-" + color}>{name}</span>;
-    };
-    return "Loading...";
+    return <span className={"badge m-1 bg-" + color}>{name}</span>;
 };
 Quality.propTypes = {
     id: PropTypes.string
