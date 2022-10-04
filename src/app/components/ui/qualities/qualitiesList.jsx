@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Quality from "./quality";
-import { useQuality } from "../../../hooks/useQuality";
+import { useQualities } from "../../../hooks/useQuality";
 import Loader from "../../common/loader";
 
 const QualitiesList = ({ qualities }) => {
-    const { isLoading } = useQuality();
+    const { isLoading } = useQualities();
 
     if (isLoading) return <Loader />;
     return (

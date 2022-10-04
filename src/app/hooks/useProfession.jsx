@@ -5,7 +5,7 @@ import professionService from "../services/profession.service";
 
 const ProfessionContext = React.createContext();
 
-export const useProfession = () => {
+export const useProfessions = () => {
     return useContext(ProfessionContext);
 };
 
