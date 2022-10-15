@@ -3,55 +3,32 @@ import * as yup from "yup";
 import TextField from "../common/form/textField";
 import PropTypes from "prop-types";
 import SelectField from "../common/form/selectField";
-import api from "../../api";
 import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/miltiSelectField";
-import { useHistory, useParams } from "react-router-dom";
-import { useUser } from "../../hooks/useUser";
+import { useHistory } from "react-router-dom";
 import Loader from "../common/loader";
 import { useProfessions } from "../../hooks/useProfession";
 import { useQualities } from "../../hooks/useQuality";
+import { useAuth } from "../../hooks/useAuth";
 
 const UserEditForm = () => {
+    const { currentUser, updateUser } = useAuth();
+    const { getQualitiesByIds } = useQualities();
+    const userQualities = getQualitiesByIds(currentUser.qualities);
     const [data, setData] = useState({
-        name: "",
-        email: "",
-        profession: "",
-        sex: "male",
-        qualities: []
-    });
+        ...currentUser,
+        qualities: transformData(userQualities)
+    }
+    );
     const [isLoading, setIsLoading] = useState(false);
 
-    const { userId } = useParams();
-    const { getUserById } = useUser();
     const { professions } = useProfessions();
+    const professionsList = transformData(professions);
     const { qualities } = useQualities();
+    const qualitiesList = transformData(qualities);
     const [errors, setErrors] = useState({});
     const isValid = Object.keys(errors).length === 0;
     const history = useHistory();
-
-    useEffect(() => {
-        (async () => {
-            const user = await getUserById(userId);
-            setData(user);
-        })();
-
-        // setIsLoading(true);
-        // api.users.getById(userId).then(({ profession, qualities, ...rest }) => setData((prevState) => ({
-        //     ...prevState,
-        //     ...rest,
-        //     profession: profession._id,
-        //     qualities: transformData(qualities)
-        // })));
-        // api.professions.fetchAll().then((data) => {
-        //     const professionsList = transformData(data);
-        //     setProfessions(professionsList);
-        // });
-        // api.qualities.fetchAll().then((data) => {
-        //     const qualitiesList = transformData(data);
-        //     setQualities(qualitiesList);
-        // });
-    }, []);
 
     function transformData(data) {
         const arr = Array.isArray(data) ? data : Object.values(data);
@@ -88,44 +65,22 @@ const UserEditForm = () => {
         setData(prevState => ({ ...prevState, [target.name]: target.value }));
     };
 
-    const getProfessionById = (id) => {
-        for (const prof of professions) {
-            if (prof.value === id) {
-                return { _id: prof.value, name: prof.label };
-            }
-        }
-    };
-    const getQualities = (elements) => {
-        const qualitiesArray = [];
-        for (const elem of elements) {
-            for (const quality in qualities) {
-                if (elem.value === qualities[quality].value) {
-                    qualitiesArray.push({
-                        _id: qualities[quality].value,
-                        name: qualities[quality].label,
-                        color: qualities[quality].color
-                    });
-                }
-            }
-        }
-        return qualitiesArray;
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;
-        const { profession, qualities } = data;
+        const { qualities } = data;
         const updatedData = {
             ...data,
-            profession: getProfessionById(profession),
-            qualities: getQualities(qualities)
+            qualities: qualities.map(q => q.value)
         };
-        api.users.update(userId, updatedData)
-            .then(() => {
-                history.push("/users");
-            })
-            .catch(() => alert("Что-то пошло не так"));
+
+        try {
+            await updateUser(updatedData);
+            history.push(`/users/${currentUser._id}`);
+        } catch (error) {
+            setErrors(error);
+        };
     };
 
     if (isLoading) return <Loader />;
@@ -146,7 +101,7 @@ const UserEditForm = () => {
             error={errors.email} />
         <SelectField
             label="Выберите вашу профессию"
-            options={transformData(professions)}
+            options={professionsList}
             name="profession"
             onChange={handleChange}
             defaultOption="Choose..."
@@ -165,7 +120,7 @@ const UserEditForm = () => {
             label="Выберите ваш пол"
         />
         <MultiSelectField
-            options={transformData(qualities)}
+            options={qualitiesList}
             onChange={handleChange}
             defaultValue={data.qualities}
             name="qualities"

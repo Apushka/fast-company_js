@@ -96,6 +96,7 @@ const RegisterForm = () => {
     };
 
     const handleSubmit = async (e) => {
+        console.log(data);
         e.preventDefault();
         const isValid = validate();
         if (!isValid) return;

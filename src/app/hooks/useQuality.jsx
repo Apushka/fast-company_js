@@ -40,12 +40,16 @@ export const QualityProvider = ({ children }) => {
         return qualities.find((q) => q._id === id);
     };
 
+    const getQualitiesByIds = (ids) => {
+        return ids.map(id => getQuality(id));
+    };
+
     const errorCatcher = (error) => {
         const { message } = error.response.data;
         setError(message);
     };
 
-    return <QualityContext.Provider value={{ qualities, isLoading, getQuality }}>
+    return <QualityContext.Provider value={{ qualities, isLoading, getQuality, getQualitiesByIds }}>
         {!isLoading ? children : <Loader fullScreen />}
     </QualityContext.Provider>;
 };
