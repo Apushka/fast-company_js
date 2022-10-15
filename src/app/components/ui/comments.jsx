@@ -1,26 +1,18 @@
 import _ from "lodash";
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import api from "../../api";
+import React from "react";
+import { useComments } from "../../hooks/useComments";
 import { CommentsList } from "../common/comments";
 import CommentAddForm from "./commentAddForm";
 
 const Comments = () => {
-    const [comments, setComments] = useState([]);
-    const { userId } = useParams();
-
-    useEffect(() => {
-        api.comments.fetchCommentsForUser(userId).then(comments => setComments(comments));
-    }, []);
+    const { createComment, comments, removeComment } = useComments();
 
     const handleRemove = (id) => {
-        api.comments.remove(id)
-            .then(id => setComments(prevState => prevState.filter(comment => comment._id !== id)));
+        removeComment(id);
     };
 
     const handleSubmit = (data) => {
-        api.comments.add({ ...data, pageId: userId })
-            .then(comment => setComments(prevState => ([...prevState, comment])));
+        createComment(data);
     };
 
     const sortedComments = _.orderBy(comments, ["created_at"], ["desc"]);

@@ -3,7 +3,9 @@ import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import axios from "axios";
 import userService from "../services/user.service";
-import { setTokens } from "../services/localStorage.service";
+import localStorageService, { setTokens } from "../services/localStorage.service";
+import Loader from "../components/common/loader";
+import { useHistory } from "react-router-dom";
 
 const AuthContext = React.createContext();
 
@@ -11,11 +13,26 @@ export const useAuth = () => {
     return useContext(AuthContext);
 };
 
-const httpAuth = axios.create();
+export const httpAuth = axios.create({
+    baseURL: "https://identitytoolkit.googleapis.com/v1/",
+    params: {
+        key: process.env.REACT_APP_FIREBASE_KEY
+    }
+});
 
 const AuthProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState({});
+    const [currentUser, setCurrentUser] = useState();
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const history = useHistory();
+
+    useEffect(() => {
+        if (localStorageService.getAccessToken()) {
+            getUserData();
+        } else {
+            setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         if (error !== null) {
@@ -29,12 +46,26 @@ const AuthProvider = ({ children }) => {
         setError(message);
     };
 
+    const randomInt = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+
     const signUp = async ({ email, password, ...rest }) => {
-        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${process.env.REACT_APP_FIREBASE_KEY}`;
         try {
-            const { data } = await httpAuth.post(url, { email, password, returnSecureToken: true });
+            const { data } = await httpAuth.post("accounts:signUp", { email, password, returnSecureToken: true });
             setTokens(data);
-            await createUser({ _id: data.localId, email, ...rest });
+            await createUser({
+                _id: data.localId,
+                email,
+                image: `https://avatars.dicebear.com/api/avataaars/${(
+                    Math.random() + 1
+                )
+                    .toString(36)
+                    .substring(7)}.svg`,
+                rate: randomInt(1, 5),
+                completedMeetings: randomInt(0, 200),
+                ...rest
+            });
         } catch (error) {
             errorCatcher(error);
             const { code, message } = error.response.data.error;
@@ -48,23 +79,31 @@ const AuthProvider = ({ children }) => {
     };
 
     const signIn = async ({ email, password }) => {
-        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.REACT_APP_FIREBASE_KEY}`;
         try {
-            const { data } = await httpAuth.post(url, { email, password, returnSecureToken: true });
+            const { data } = await httpAuth.post("accounts:signInWithPassword", { email, password, returnSecureToken: true });
             setTokens(data);
-            await getUser(data.localId);
+            await getUserData();
         } catch (error) {
             errorCatcher(error);
             const { code, message } = error.response.data.error;
             if (code === 400) {
                 // firebase возвращает, где именно было введено неверное значение, но по правилам нельзя указывать, что
                 // введено неправильно - email или пароль. Нужно выдать обобщенную информацию, что что-то введено неверно.
-                if (message === "EMAIL_NOT_FOUND" || message === "INVALID_PASSWORD") {
-                    const errorObject = { email: "Неверный email", password: "Неверный пароль" };
-                    throw errorObject;
-                }
+                switch (message) {
+                    case "INVALID_PASSWORD": {
+                        throw new Error("Email или пароль введены неверно");
+                    }
+                    default:
+                        throw new Error("Слишком много попыток входа. Попробуйте позже");
+                };
             }
         }
+    };
+
+    const logOut = () => {
+        localStorageService.removeAuthData();
+        setCurrentUser(null);
+        history.push("/");
     };
 
     const createUser = async (data) => {
@@ -76,17 +115,19 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-    const getUser = async (id) => {
+    const getUserData = async () => {
         try {
-            const { content } = await userService.getById(id);
+            const { content } = await userService.getCurrentUser();
             setCurrentUser(content);
         } catch (error) {
             errorCatcher(error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    return <AuthContext.Provider value={{ signUp, signIn, currentUser }} >
-        {children}
+    return <AuthContext.Provider value={{ signUp, signIn, currentUser, logOut }} >
+        {!isLoading ? children : <Loader fullScreen />}
     </AuthContext.Provider >;
 };
 

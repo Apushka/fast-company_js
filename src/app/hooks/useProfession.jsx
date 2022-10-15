@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import professionService from "../services/profession.service";
+import Loader from "../components/common/loader";
 
 const ProfessionContext = React.createContext();
 
@@ -45,7 +46,7 @@ export const ProfessionProvider = ({ children }) => {
     };
 
     return <ProfessionContext.Provider value={{ professions, isLoading, getProfession }}>
-        {children}
+        {!isLoading ? children : <Loader fullScreen />}
     </ProfessionContext.Provider>;
 };
 

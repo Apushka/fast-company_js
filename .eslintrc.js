@@ -23,7 +23,8 @@ module.exports = {
             "error",
             "double",
             {
-                allowTemplateLiterals: true
+                allowTemplateLiterals: true,
+                avoidEscape: true
             }
         ]
     }

@@ -11,6 +11,7 @@
         "bootstrap": "^5.1.0",
         "eslint-plugin-prettier": "^3.4.1",
         "lodash": "^4.17.15",
+        "nanoid": "^4.0.0",
         "prop-types": "^15.7.2",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",

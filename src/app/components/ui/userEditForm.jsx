@@ -7,7 +7,10 @@ import api from "../../api";
 import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/miltiSelectField";
 import { useHistory, useParams } from "react-router-dom";
+import { useUser } from "../../hooks/useUser";
 import Loader from "../common/loader";
+import { useProfessions } from "../../hooks/useProfession";
+import { useQualities } from "../../hooks/useQuality";
 
 const UserEditForm = () => {
     const [data, setData] = useState({
@@ -20,31 +23,37 @@ const UserEditForm = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const { userId } = useParams();
-    const [professions, setProfessions] = useState([]);
-    const [qualities, setQualities] = useState([]);
+    const { getUserById } = useUser();
+    const { professions } = useProfessions();
+    const { qualities } = useQualities();
     const [errors, setErrors] = useState({});
     const isValid = Object.keys(errors).length === 0;
     const history = useHistory();
 
     useEffect(() => {
-        setIsLoading(true);
-        api.users.getById(userId).then(({ profession, qualities, ...rest }) => setData((prevState) => ({
-            ...prevState,
-            ...rest,
-            profession: profession._id,
-            qualities: transformData(qualities)
-        })));
-        api.professions.fetchAll().then((data) => {
-            const professionsList = transformData(data);
-            setProfessions(professionsList);
-        });
-        api.qualities.fetchAll().then((data) => {
-            const qualitiesList = transformData(data);
-            setQualities(qualitiesList);
-        });
+        (async () => {
+            const user = await getUserById(userId);
+            setData(user);
+        })();
+
+        // setIsLoading(true);
+        // api.users.getById(userId).then(({ profession, qualities, ...rest }) => setData((prevState) => ({
+        //     ...prevState,
+        //     ...rest,
+        //     profession: profession._id,
+        //     qualities: transformData(qualities)
+        // })));
+        // api.professions.fetchAll().then((data) => {
+        //     const professionsList = transformData(data);
+        //     setProfessions(professionsList);
+        // });
+        // api.qualities.fetchAll().then((data) => {
+        //     const qualitiesList = transformData(data);
+        //     setQualities(qualitiesList);
+        // });
     }, []);
 
-    const transformData = (data) => {
+    function transformData(data) {
         const arr = Array.isArray(data) ? data : Object.values(data);
         return arr.map((item) => {
             const { name: label, _id: value, ...rest } = item;
@@ -137,7 +146,7 @@ const UserEditForm = () => {
             error={errors.email} />
         <SelectField
             label="Выберите вашу профессию"
-            options={professions}
+            options={transformData(professions)}
             name="profession"
             onChange={handleChange}
             defaultOption="Choose..."
@@ -156,7 +165,7 @@ const UserEditForm = () => {
             label="Выберите ваш пол"
         />
         <MultiSelectField
-            options={qualities}
+            options={transformData(qualities)}
             onChange={handleChange}
             defaultValue={data.qualities}
             name="qualities"

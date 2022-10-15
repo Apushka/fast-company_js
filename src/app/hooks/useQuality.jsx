@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import qualityService from "../services/quality.service";
+import Loader from "../components/common/loader";
 
 const QualityContext = React.createContext();
 
@@ -45,7 +46,7 @@ export const QualityProvider = ({ children }) => {
     };
 
     return <QualityContext.Provider value={{ qualities, isLoading, getQuality }}>
-        {children}
+        {!isLoading ? children : <Loader fullScreen />}
     </QualityContext.Provider>;
 };
 

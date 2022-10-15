@@ -9,9 +9,9 @@ const QualitiesCard = ({ qualities }) => {
                 <h5 className="card-title">
                     <span>Qualities</span>
                 </h5>
-                <p className="card-text">
+                <div className="card-text">
                     <QualitiesList qualities={qualities} />
-                </p>
+                </div>
             </div>
         </div>
     );

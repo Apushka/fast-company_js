@@ -13,10 +13,10 @@ export function displayDate(data) {
                     return "1 минуту назад";
                 }
                 if (minutesDiff >= 5 && minutesDiff < 10) {
-                    return "5 минуту назад";
+                    return "5 минут назад";
                 }
                 if (minutesDiff >= 10 && minutesDiff < 30) {
-                    return "10 минуту назад";
+                    return "10 минут назад";
                 }
                 return "30 минут назад";
             }
