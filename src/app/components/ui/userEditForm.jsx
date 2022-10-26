@@ -7,24 +7,24 @@ import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/miltiSelectField";
 import { useHistory } from "react-router-dom";
 import Loader from "../common/loader";
-import { useProfessions } from "../../hooks/useProfession";
-import { useQualities } from "../../hooks/useQuality";
 import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";
+import { getQualities, getQualitiesByIds, getQualitiesLoadingStatus } from "../../store/qualities";
+import { getProfessions } from "../../store/professions";
 
 const UserEditForm = () => {
     const { currentUser, updateUser } = useAuth();
-    const { getQualitiesByIds } = useQualities();
-    const userQualities = getQualitiesByIds(currentUser.qualities);
+    const userQualities = useSelector(getQualitiesByIds(currentUser.qualities));
     const [data, setData] = useState({
         ...currentUser,
         qualities: transformData(userQualities)
     }
     );
-    const [isLoading, setIsLoading] = useState(false);
 
-    const { professions } = useProfessions();
+    const professions = useSelector(getProfessions());
     const professionsList = transformData(professions);
-    const { qualities } = useQualities();
+    const qualities = useSelector(getQualities());
+    const isLoading = useSelector(getQualitiesLoadingStatus());
     const qualitiesList = transformData(qualities);
     const [errors, setErrors] = useState({});
     const isValid = Object.keys(errors).length === 0;
@@ -37,10 +37,6 @@ const UserEditForm = () => {
             return { label, value, ...rest };
         });
     };
-
-    useEffect(() => {
-        if (data._id) setIsLoading(false);
-    }, [data]);
 
     useEffect(() => {
         validate();

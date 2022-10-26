@@ -8,14 +8,16 @@ import UserTable from "../../ui/usersTable";
 import SearchField from "../../common/form/searchField";
 import Loader from "../../common/loader";
 import { useUser } from "../../../hooks/useUser";
-import { useProfessions } from "../../../hooks/useProfession";
 import { useAuth } from "../../../hooks/useAuth";
+import { useSelector } from "react-redux";
+import { getProfessions, getProfessionsLoadingStatus } from "../../../store/professions";
 
 const UsersListPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const { users } = useUser();
     const { currentUser } = useAuth();
-    const { professions, isLoading: isProfeddionsLoading } = useProfessions();
+    const professions = useSelector(getProfessions());
+    const isLoading = useSelector(getProfessionsLoadingStatus());
     const [selectedProf, setSelectedProf] = useState();
     const [sortBy, setSortBy] = useState({ path: "name", order: "asc" });
     const [search, setSearch] = useState("");
@@ -82,7 +84,7 @@ const UsersListPage = () => {
 
         return (
             <div className="d-flex">
-                {professions && !isProfeddionsLoading && (
+                {professions && !isLoading && (
                     <div className="d-flex flex-column flex-shrink-0 p-3">
                         <GroupList
                             selectedItem={selectedProf}
