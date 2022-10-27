@@ -7,13 +7,14 @@ import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/miltiSelectField";
 import { useHistory } from "react-router-dom";
 import Loader from "../common/loader";
-import { useAuth } from "../../hooks/useAuth";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getQualities, getQualitiesByIds, getQualitiesLoadingStatus } from "../../store/qualities";
 import { getProfessions } from "../../store/professions";
+import { getCurrentUserData, updateUserData } from "../../store/users";
 
 const UserEditForm = () => {
-    const { currentUser, updateUser } = useAuth();
+    const dispatch = useDispatch();
+    const currentUser = useSelector(getCurrentUserData());
     const userQualities = useSelector(getQualitiesByIds(currentUser.qualities));
     const [data, setData] = useState({
         ...currentUser,
@@ -72,7 +73,7 @@ const UserEditForm = () => {
         };
 
         try {
-            await updateUser(updatedData);
+            dispatch(updateUserData(updatedData));
             history.push(`/users/${currentUser._id}`);
         } catch (error) {
             setErrors(error);
