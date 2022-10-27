@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import { logIn } from "../../store/users";
+import { getAuthError, logIn } from "../../store/users";
 import { validator } from "../../utils/validator";
 import CheckBoxField from "../common/form/checkBoxField";
 import TextField from "../common/form/textField";
@@ -13,7 +13,7 @@ const LoginForm = () => {
         stayOn: false
     });
     const [errors, setErrors] = useState({});
-    const [enterError, setEnterError] = useState(null);
+    const loginError = useSelector(getAuthError());
     const isValid = Object.keys(errors).length === 0;
     const dispatch = useDispatch();
     const history = useHistory();
@@ -43,7 +43,6 @@ const LoginForm = () => {
 
     const handleChange = (target) => {
         setData(prevState => ({ ...prevState, [target.name]: target.value }));
-        setEnterError(null);
     };
 
     const handleSubmit = async (e) => {
@@ -70,11 +69,11 @@ const LoginForm = () => {
             value={data.password}
             onChange={handleChange}
             error={errors.password} />
-        {enterError && <p className="text-danger">{enterError}</p>}
+        {loginError && <p className="text-danger">{loginError}</p>}
         <CheckBoxField value={data.stayOn} onChange={handleChange} name="stayOn" >
             Оставаться в системе
         </CheckBoxField>
-        <button className="btn btn-primary w-100 mx-auto" disabled={!isValid || enterError}>Submit</button>
+        <button className="btn btn-primary w-100 mx-auto" disabled={!isValid}>Submit</button>
     </form>;
 };
 
