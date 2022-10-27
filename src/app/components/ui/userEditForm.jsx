@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 import SelectField from "../common/form/selectField";
 import RadioField from "../common/form/radioField";
 import MultiSelectField from "../common/form/miltiSelectField";
-import { useHistory } from "react-router-dom";
 import Loader from "../common/loader";
 import { useDispatch, useSelector } from "react-redux";
 import { getQualities, getQualitiesByIds, getQualitiesLoadingStatus } from "../../store/qualities";
@@ -29,7 +28,6 @@ const UserEditForm = () => {
     const qualitiesList = transformData(qualities);
     const [errors, setErrors] = useState({});
     const isValid = Object.keys(errors).length === 0;
-    const history = useHistory();
 
     function transformData(data) {
         const arr = Array.isArray(data) ? data : Object.values(data);
@@ -71,13 +69,7 @@ const UserEditForm = () => {
             ...data,
             qualities: qualities.map(q => q.value)
         };
-
-        try {
-            dispatch(updateUserData(updatedData));
-            history.push(`/users/${currentUser._id}`);
-        } catch (error) {
-            setErrors(error);
-        };
+        dispatch(updateUserData(updatedData));
     };
 
     if (isLoading) return <Loader />;
