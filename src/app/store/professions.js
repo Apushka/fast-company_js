@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import professionService from "../services/profession.service";
+import { isOutDate } from "../utils/isOutDate";
 
 const professionsSlice = createSlice({
     name: "professions",
@@ -28,13 +29,6 @@ const professionsSlice = createSlice({
 const { reducer: professionsReducer, actions } = professionsSlice;
 const { professionsRequested, professionsRequestFailed, professionsReceived } =
     actions;
-
-const isOutDate = (date) => {
-    if (Date.now() - date > 10 * 60 * 1000) {
-        return true;
-    }
-    return false;
-};
 
 export const loadProfessionsList = () => async (dispatch, getState) => {
     const { lastFetch } = getState().professions;
